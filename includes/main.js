@@ -29,7 +29,18 @@ function initiateApp(){
 	addModalCloseHandler();
 	$('#gallery').on('click', 'figure.imageGallery', displayImage);
 	$('.modal').on('click', addModalCloseHandler);
-	$('#gallery').sortable();
+	checkStorage();
+	$('#gallery').sortable({
+		update: function(){
+			var updatedArray = $('#gallery').sortable('toArray');
+			for(var i = 0; i < updatedArray.length; i++){
+				updatedArray[i] = 'images/' + updatedArray[i] + '.jpg';
+			}
+			pictures = updatedArray;
+			localStorage.setItem("pictures", JSON.stringify(pictures));
+			console.log(pictures);
+		}
+	});
 }
 function makeGallery(imageArray){
 	//use loops and jquery dom creation to make the html structure inside the #gallery section
@@ -37,7 +48,7 @@ function makeGallery(imageArray){
 	for(var i=0; i < imageArray.length; i++){
 		var period = imageArray[i].lastIndexOf(".");
 		var fileName = imageArray[i].substring(7, period);
-		var figure = $('<figure class="imageGallery col-xs-12 col-sm-6 col-md-4"></figure>').css('background-image', 'url(' + imageArray[i] + ')');
+		var figure = $('<figure id="' + fileName + '" class="imageGallery col-xs-12 col-sm-6 col-md-4"></figure>').css('background-image', 'url(' + imageArray[i] + ')');
 		var figCaption = $('<figcaption>' + fileName + '</figcaption>');
 		var fullFigure = figure.append(figCaption);
 		$('#gallery').append(fullFigure);
@@ -77,4 +88,14 @@ function displayImage(){
 	//show the modal with JS.  Check for more info here:
 	$('.modal').modal();
 	//https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
+}
+
+function checkStorage(){
+	var retrievedArray = localStorage.getItem('pictures');
+	JSON.parse(retrievedArray);
+	console.log(retrievedArray);
+	pictures = retrievedArray;
+	// if(retrievedArray != []){
+
+	// }
 }
