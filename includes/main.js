@@ -1,5 +1,3 @@
-/* your javascript goes here */
-
 $(document).ready(initiateApp);
 
 var pictures = [
@@ -19,83 +17,73 @@ var pictures = [
 	'images/pretty.jpg',
 ];
 
-
 function initiateApp(){
-	/*advanced: add jquery sortable call here to make the gallery able to be sorted
-		//on change, rebuild the images array into the new order
-	*/
 
+	// If localStorage has an item 'pictures', parse the JSON and overwrite pictures array
+	if(localStorage.getItem('pictures') !== null){
+		var retrievedArray = localStorage.getItem('pictures');
+		pictures = JSON.parse(retrievedArray);
+		}
+
+	// Calls function to create the image gallery, passes in the pictures array
 	makeGallery(pictures);
-	addModalCloseHandler();
+	// Apply click handler to figure children of #gallery, call display image function
 	$('#gallery').on('click', 'figure.imageGallery', displayImage);
+	// Apply click handler to modal, call addModalCloseHandler function
 	$('.modal').on('click', addModalCloseHandler);
-	checkStorage();
+	// Apply jQueryUI sortable to gallery
 	$('#gallery').sortable({
 		update: function(){
+			// Declare variable, select gallery, use "toArray" to return array of element IDs
 			var updatedArray = $('#gallery').sortable('toArray');
+			// Loop through updated array, format IDs into filenames
 			for(var i = 0; i < updatedArray.length; i++){
 				updatedArray[i] = 'images/' + updatedArray[i] + '.jpg';
 			}
+			// Updates pictures array with new order, saves to localStorage as JSON
 			pictures = updatedArray;
 			localStorage.setItem("pictures", JSON.stringify(pictures));
-			console.log(pictures);
 		}
 	});
 }
+
+// Takes in images array, creates gallery
 function makeGallery(imageArray){
-	//use loops and jquery dom creation to make the html structure inside the #gallery section
-	//create a loop to go through the images in the imageArray
+	// Loop through array of photos
 	for(var i=0; i < imageArray.length; i++){
-		var period = imageArray[i].lastIndexOf(".");
-		var fileName = imageArray[i].substring(7, period);
+		// Form variables to extract just the file name from the array items
+		var period = imageArray[i].lastIndexOf(".");  // Finds number of the period
+		var fileName = imageArray[i].substring(7, period);  // Extracts substring between character 7 and the character number of the period
+		// Set html variables for dynamically created elements
 		var figure = $('<figure id="' + fileName + '" class="imageGallery col-xs-12 col-sm-6 col-md-4"></figure>').css('background-image', 'url(' + imageArray[i] + ')');
 		var figCaption = $('<figcaption>' + fileName + '</figcaption>');
 		var fullFigure = figure.append(figCaption);
+		// Appends html for each index item to the gallery ID
 		$('#gallery').append(fullFigure);
-	}
-		//create the elements needed for each picture, store the elements in variable
-		//attach a click handler to the figure you create.  call the "displayImage" function.
-		//append the element to the #gallery section
-	// side note: make sure to remove the hard coded html in the index.html when you are done!
 
+	}
 }
 
+// Activated by click handler, selects and hides modal
 function addModalCloseHandler(){
-	//add a click handler to the img element in the image modal.  When the element is clicked, close the modal
-	//for more info, check here: https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
 	$('.modal').modal('hide');
 }
 
+// Triggered by click handler on the figure, formats file name and modal title, opens modal
 function displayImage(){
-	//find the url of the image by grabbing the background-image source, store it in a variable
-	//grab the direct url of the image by getting rid of the other pieces you don't need
+	// Declare variable, set it to the css background-image source
 	var fullUrl = ($(this).css("background-image"));
+	// Find the number of the character before and after the section of the src that we want to extract
 	var urlStart = fullUrl.lastIndexOf('image');
 	var urlEnd = fullUrl.lastIndexOf('"');
+	// Extract the filename from the src string
 	var url = fullUrl.substring(urlStart, urlEnd);
-	//grab the name from the file url, ie the part without the path.  so "images/pexels-photo-132037.jpeg" would become
-	// pexels-photo-132037
-	//take a look at the lastIndexOf method
+	// Extract the text from the figure (file name minus .jpg)
 	var name = $(this).text();
-
-
-
-
-	//change the modal-title text to the name you found above
+	// Change the modal title to the name of the file
 	$('.modal-title').text(name);
-	//change the src of the image in the modal to the url of the image that was clicked on
+	// Change the src of the clicked figure to the modal body
 	$('.modal-body').html('<img src="' + url +'">');
-	//show the modal with JS.  Check for more info here:
+	// Open the modal with the updated html
 	$('.modal').modal();
-	//https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
-}
-
-function checkStorage(){
-	var retrievedArray = localStorage.getItem('pictures');
-	JSON.parse(retrievedArray);
-	console.log(retrievedArray);
-	pictures = retrievedArray;
-	// if(retrievedArray != []){
-
-	// }
 }
